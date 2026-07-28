@@ -55,7 +55,7 @@ npm run dist   # builds both DMGs (unsigned): …-arm64.dmg (Apple Silicon) and 
 
 The app is its own terminal — Electron + xterm.js + node-pty, VS Code's terminal architecture. It bundles the Node runtime, all dependencies, and DejaVu Sans Mono (guaranteed solid braille for the charts), so end users install nothing. The window recovers the login-shell PATH so `claude`/`ant` resolve for the AI desk; without Claude Code installed, markets still work and AI degrades with an install hint.
 
-Unsigned for now: recipients need right-click → Open on first launch. Signing + notarization (Apple Developer ID) is the remaining step for wide distribution. The landing page hero offers both DMGs with best-effort architecture detection.
+Unsigned for now: macOS marks downloaded copies as "damaged" — recipients run `xattr -cr /Applications/BloomMountain.app` once after installing. Signing + notarization (Apple Developer ID) is the remaining step for wide distribution. The landing page hero offers both DMGs with best-effort architecture detection.
 
 ## Landing page
 
