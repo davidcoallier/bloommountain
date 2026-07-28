@@ -233,6 +233,8 @@ export interface PaperBook {
   rows: (Position & { price: number | null; value: number; pnl: number; pnlPct: number; dayPct: number | null })[];
   equity: number;
   totalReturn: number;
+  /** What selling every position right now would realize vs cost. */
+  unrealized: number;
   realized: number;
   benchmarkReturn: number | null;
 }
@@ -249,10 +251,11 @@ export async function paperBook(): Promise<PaperBook> {
     return { ...p, price, value, pnl, pnlPct: pnl / (p.avgCost * p.qty), dayPct: quotes[i]?.pct ?? null };
   });
   const equity = state.cash + rows.reduce((a, r) => a + r.value, 0);
+  const unrealized = rows.reduce((a, r) => a + r.pnl, 0);
   const realized = state.closed.reduce((a, c) => a + c.pnl, 0);
   const benchmarkReturn =
     state.spxStart != null && spx?.price != null ? spx.price / state.spxStart - 1 : null;
-  return { state, rows, equity, totalReturn: equity / state.startCash - 1, realized, benchmarkReturn };
+  return { state, rows, equity, totalReturn: equity / state.startCash - 1, unrealized, realized, benchmarkReturn };
 }
 
 function fmt(n: number): string {

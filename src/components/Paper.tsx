@@ -41,6 +41,10 @@ export function Paper({ active }: { active: boolean }) {
             <Text color={theme.text}>
               equity <Text bold color={theme.amber}>{fmtPrice(book.equity)}</Text>
               {"  ·  cash "}{fmtPrice(book.state.cash)}
+              {"  ·  sell all now: "}
+              <Text bold color={deltaColor(book.unrealized)}>
+                {(book.unrealized >= 0 ? "+" : "") + fmtPrice(book.unrealized)}
+              </Text>
               {"  ·  return "}
               <Text bold color={deltaColor(book.totalReturn)}>{fmtPct(book.totalReturn * 100)}</Text>
               {"  vs S&P "}
