@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root { --amber: #ffb000; --dim: #6e756e; --text: #d6d6d6; --border: #30363d; --down: #ff5252; --up: #00e676; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 22px 26px; background: #000; color: var(--text);
+      font: 13px ui-monospace, Menlo, monospace;
+    }
+    h1 { font-size: 14px; color: var(--amber); margin: 0 0 4px; }
+    .sub { color: var(--dim); font-size: 11.5px; margin: 0 0 18px; }
+    label { display: block; color: var(--dim); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin: 14px 0 5px; }
+    select, input {
+      width: 100%; background: #0a0a08; color: var(--text);
+      border: 1px solid var(--border); padding: 8px 10px;
+      font: 13px ui-monospace, Menlo, monospace; outline: none;
+    }
+    select:focus, input:focus { border-color: var(--amber); }
+    .hint { color: var(--dim); font-size: 11px; margin-top: 4px; }
+    button {
+      margin-top: 20px; width: 100%; padding: 10px;
+      background: var(--amber); color: #000; border: none; font: 600 13px ui-monospace, Menlo, monospace;
+      cursor: pointer;
+    }
+    button:hover { background: #ffc233; }
+    #status { margin-top: 12px; font-size: 12px; min-height: 16px; }
+    #status.ok { color: var(--up); }
+    #status.err { color: var(--down); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>◆ Bloom — AI settings</h1>
+  <p class="sub">Which brain runs the analyst desk. Changes apply to your next question.</p>
+
+  <label for="provider">provider</label>
+  <select id="provider">
+    <option value="claude-code">Claude Code (browser login · full skills)</option>
+    <option value="anthropic">Anthropic API key</option>
+    <option value="openai">OpenAI API key</option>
+    <option value="ollama">Ollama (local)</option>
+    <option value="custom">Custom endpoint (OpenAI-compatible)</option>
+  </select>
+
+  <div id="f-key" class="hidden">
+    <label for="apiKey">api key</label>
+    <input id="apiKey" type="password" placeholder="unchanged" autocomplete="off">
+    <div class="hint">Stored locally, mode 600. Leave blank to keep the saved key.</div>
+  </div>
+
+  <div id="f-baseurl" class="hidden">
+    <label for="baseUrl">endpoint url</label>
+    <input id="baseUrl" type="text" placeholder="http://localhost:11434/v1">
+  </div>
+
+  <div id="f-model" class="hidden">
+    <label for="model">model</label>
+    <input id="model" type="text" placeholder="claude-opus-4-8">
+    <div class="hint" id="model-hint"></div>
+  </div>
+
+  <button id="save">Save</button>
+  <div id="status"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const HINTS = {
+      anthropic: "default: claude-opus-4-8",
+      openai: "e.g. gpt-5.2 — see your provider's model list",
+      ollama: "e.g. qwen2.5:7b — 7B+ models call tools far more reliably",
+      custom: "the model name your endpoint serves",
+    };
+    function refresh() {
+      const p = $("provider").value;
+      $("f-key").classList.toggle("hidden", !["anthropic", "openai", "custom"].includes(p));
+      $("f-baseurl").classList.toggle("hidden", !["ollama", "custom"].includes(p));
+      $("f-model").classList.toggle("hidden", p === "claude-code");
+      $("model-hint").textContent = HINTS[p] || "";
+    }
+    $("provider").addEventListener("change", refresh);
+
+    bloomSettings.load().then((cfg) => {
+      $("provider").value = cfg.provider || "claude-code";
+      $("model").value = cfg.model || "";
+      $("baseUrl").value = cfg.baseUrl || "";
+      if (cfg.hasKey) $("apiKey").placeholder = "•••••••• (saved — leave blank to keep)";
+      refresh();
+    });
+
+    $("save").addEventListener("click", async () => {
+      const cfg = {
+        provider: $("provider").value,
+        model: $("model").value.trim() || undefined,
+        baseUrl: $("baseUrl").value.trim() || undefined,
+        apiKey: $("apiKey").value.trim() || undefined,
+      };
+      const res = await bloomSettings.save(cfg);
+      const el = $("status");
+      el.className = res.ok ? "ok" : "err";
+      el.textContent = res.ok ? "✔ saved — next question uses " + cfg.provider : "✗ " + res.error;
+    });
+  </script>
+</body>
+</html>
