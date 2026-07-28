@@ -68,7 +68,7 @@ export function Paper({ active }: { active: boolean }) {
               <Text bold color={theme.amber}>HOLDING</Text>
               <Box>
                 <Text color={theme.dim}>
-                  {"symbol".padEnd(10)}{"qty".padStart(10)}{"avg".padStart(11)}{"last".padStart(11)}{"value".padStart(12)}{"if sold".padStart(12)}{"%".padStart(9)}{"day".padStart(9)}
+                  {"symbol".padEnd(10)}{"qty".padStart(10)}{"avg".padStart(11)}{"last".padStart(11)}{"value".padStart(12)}{"P&L".padStart(12)}{"P&L%".padStart(9)}{"day".padStart(9)}
                 </Text>
               </Box>
               {book.rows.map((r) => (
